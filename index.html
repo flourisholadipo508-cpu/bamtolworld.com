@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bamtol World | Your Style Haven</title>
+    <!-- Connecting securely to your styling layout sheets and script logic brain -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="bamtol%20icon.png">
+    <script src="app.js" defer></script>
+</head>
+<body>
+
+    <!-- Promotion Announcement Ticker -->
+    <div class="promo-banner" id="promoBanner">✨ Free Nationwide Shipping On Orders Over ₦700,000 This month! ✨</div>
+
+    <!-- Luxury Header Navigation Platform -->
+    <header>
+        <div class="logo-container" onclick="navigateTo('home')">
+            <img src="bamtol%20icon.png" alt="Logo" class="logo-img">
+            <div class="logo-text">Bamtol <span>World</span></div>
+        </div>
+        <div class="right-nav">
+            <button class="currency-toggle" onclick="toggleCurrency()" id="currencyBtn">₦ NGN</button>
+            
+            <!-- Upgraded: Premium Vector Home Icon (Initially hidden on homepage using inline CSS display) -->
+            <button id="headerHomeIcon" class="home-btn" onclick="navigateTo('home')" style="display: none;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="#d4af37" xmlns="http://w3.org">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+            </button>
+            
+            <div class="dropdown">
+                <button class="three-dots-btn" onclick="toggleDropdown(event)">...</button>
+                <div class="dropdown-content" id="categoryMenu">
+                    <button onclick="openCatalog('clothing')">Clothing <span class="gold-dot" id="dot-clothing"></span></button>
+                    <button onclick="openCatalog('footwear')">Footwear <span class="gold-dot" id="dot-footwear"></span></button>
+                    <button onclick="openCatalog('accessories')">Accessories <span class="gold-dot" id="dot-accessories"></span></button>
+                    <button onclick="openCatalog('jewelry')">Jewelry <span class="gold-dot" id="dot-jewelry"></span></button>
+                    <button onclick="navigateTo('about')">About Us</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-container">
+        
+        <!-- VIEW 1: HOME PAGE WINDOW -->
+        <section id="home-view" class="view-section active-view">
+            <div class="homepage-hero" style="background-image: linear-gradient(rgba(212, 175, 55, 0.25), rgba(17, 17, 17, 0.85)), url('gii.png');">
+                <h1>Bamtol <span>World</span></h1>
+                <div class="slogan">Your Style Haven</div>
+                <p>Discover couture collections designed for those who appreciate fine tailoring, high fashion, and timeless elegance.</p>
+                <button class="explore-prompt-btn" onclick="currentActiveCategory='clothing'; openCatalog('clothing')">Explore Collections</button>
+            </div>
+            
+            <!-- Special Offers Sliding Grid Container -->
+            <div class="deals-section">
+                <h2>Special Deals & Offers</h2>
+                <div class="deals-grid" id="deals-display"></div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: PRODUCT CATALOG PAGE WINDOW -->
+        <section id="catalog-view" class="view-section">
+            <div class="catalog-hero">
+                <h2 id="category-title">Collection</h2>
+                <p id="category-subtitle">Curated boutique offerings.</p>
+                <p id="catalog-product-count" style="font-size:0.8rem;color:#888;font-family:Arial,sans-serif;font-style:italic;margin-bottom:15px;"></p>
+                
+                <!-- Hashtag & Keyword Search Input box -->
+                <div class="search-container">
+                    <input type="text" class="search-input" id="catalogSearch" placeholder="Search by name or hashtag..." oninput="handleSearch()">
+                    <button class="clear-search-btn" onclick="clearSearch()">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                     </svg>
+                    </button>
+                </div>
+
+                <!-- Multi-Row Filtering Tag Pills Wrapper -->
+                <div class="filter-wrapper">
+                    <div class="filter-row">
+                        <span class="filter-label">Profile:</span>
+                        <div id="row1-tags"></div>
+                    </div>
+                    <div class="filter-row">
+                        <span class="filter-label">Style:</span>
+                        <div id="row2-tags"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dynamic Inventory Cards injection layout grid -->
+            <div class="product-grid" id="product-display"></div>
+        </section>
+
+        <!-- VIEW 3: ABOUT & ADDRESS INFO WINDOW -->
+        <section id="about-view" class="view-section">
+            <div class="about-section">
+                <h2>About Our Haven</h2>
+                <div class="about-grid">
+                    <div class="about-block">
+                        <h3>Our Identity</h3>
+                        <p>At <strong>Bamtol World</strong>, we blend contemporary silhouettes with upscale luxury pieces, providing an elite assortment across clothing, footwear, accessories, and statement jewelry.</p>
+                    </div>
+                    <div class="about-block">
+                        <h3>Customer Support</h3>
+                        <p><strong>Email:</strong> <a href="mailto:Bamtolworld@gmail.com">Bamtolworld@gmail.com</a></p>
+                        <p><strong>WhatsApp Support:</strong> <a href="https://wa.me" target="_blank">08027978792</a></p>
+                    </div>
+                    <div class="about-block">
+                        <h3>Boutique Showroom</h3>
+                        <p id="showroom-address-text">Shop three opposite Feedwell Supermarket, Adetokun, Eleyele-Eruwa Expressway, Ibadan, Oyo State, Nigeria.</p>
+                        <button class="copy-addr-btn" onclick="copyAddress()">Copy Showroom Address</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <footer><p>&copy; 2026 BAMTOL WORLD. ALL RIGHTS RESERVED.</p></footer>
+    <style>
+  @keyframes bspin { to { transform: rotate(360deg); } }
+  .bspinner { width:100%; text-align:center; padding:50px 0; grid-column:1/-1; }
+  .bspinner i { display:inline-block; width:36px; height:36px; border:3px solid #e5e5e5; border-top-color:#d4af37; border-radius:50%; animation:bspin 0.8s linear infinite; }
+  .bspinner p { color:#888; font-size:0.85rem; margin-top:12px; font-family:Arial,sans-serif; }
+</style>
+<script>
+  function showSpinner(id) {
+    const e = document.getElementById(id);
+    if (e) e.innerHTML = '<div class="bspinner"><i></i><p>Loading...</p></div>';
+  }
+</script>
+
+</body>
+</html>
