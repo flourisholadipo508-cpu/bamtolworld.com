@@ -102,6 +102,12 @@ header {
 
 .share-card-btn { position: absolute; top: 12px; right: 12px; background-color: rgba(17,17,17,0.8); border: 1px solid #d4af37; color: #d4af37; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; z-index: 10; }
 
+.wishlist-btn { position: absolute; top: 52px; right: 12px; background-color: rgba(17,17,17,0.8); border: 1px solid #d4af37; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; z-index: 10; }
+
+.wishlist-badge { background: #d4af37; color: #111; font-size: 0.65rem; font-weight: bold; border-radius: 10px; padding: 1px 6px; margin-left: 4px; display: none; }
+
+.detail-wishlist-btn { background: none; border: 1px solid #111; color: #111; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; margin-top: 10px; font-family: Arial, sans-serif; }
+
 .product-info { padding: 15px; text-align: center; flex-grow: 1; }
 .product-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
 .product-desc { font-size: 0.8rem; color: #555; margin-bottom: 8px; font-family: Arial, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }.product-desc { font-size: 0.8rem; color: #555; margin-bottom: 8px; font-family: Arial, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

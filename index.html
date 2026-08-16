@@ -36,6 +36,7 @@
                     <button onclick="openCatalog('footwear')">Footwear <span class="gold-dot" id="dot-footwear"></span></button>
                     <button onclick="openCatalog('accessories')">Accessories <span class="gold-dot" id="dot-accessories"></span></button>
                     <button onclick="openCatalog('jewelry')">Jewelry <span class="gold-dot" id="dot-jewelry"></span></button>
+                    <button onclick="navigateTo('wishlist')">Wishlist <span class="wishlist-badge" id="wishlistBadge"></span></button>
                     <button onclick="navigateTo('about')">About Us</button>
                 </div>
             </div>
@@ -94,13 +95,22 @@
             <div class="product-grid" id="product-display"></div>
         </section>
 
-        <!-- VIEW 4: PRODUCT DETAIL PAGE -->
+       <!-- VIEW 4: PRODUCT DETAIL PAGE -->
         <section id="product-view" class="view-section">
           <div id="product-detail-content"></div>
           <div class="related-section">
             <h2>You Might Also Like</h2>
             <div class="product-grid" id="related-display"></div>
           </div>
+        </section>
+
+        <!-- VIEW 5: WISHLIST PAGE -->
+        <section id="wishlist-view" class="view-section">
+          <div class="catalog-hero">
+            <h2>My Wishlist</h2>
+            <p>Products you've saved for later.</p>
+          </div>
+          <div class="product-grid" id="wishlist-display"></div>
         </section>
         
         <!-- VIEW 3: ABOUT & ADDRESS INFO WINDOW -->

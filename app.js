@@ -17,6 +17,7 @@ const usdRate          = 1280;
 let carouselInterval   = null;
 let currentProductId   = null;
 let isPopping          = false;
+let wishlist            = JSON.parse(localStorage.getItem("bamtol_wishlist") || "[]");
 const promoMessages = [
   "✨ Free Nationwide Shipping On Orders Over ₦150,000 This Weekend! ✨",
   "🛍️ New Arrivals Just Dropped — Shop The Latest Collections Now!",
@@ -70,7 +71,7 @@ window.addEventListener("popstate", (e) => {
 
 window.addEventListener("productsReady", () => {
   const existing = history.state;
-  
+
   if (existing && existing.view && existing.view !== "home") {
     isPopping = true;
 
@@ -106,8 +107,9 @@ window.addEventListener("productsReady", () => {
  s.onload = async () => {
     window._db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     showSpinner("deals-display");
-    await fetchAllProducts();
+   await fetchAllProducts();
     renderHomeDeals();
+    updateWishlistBadge();
     window.dispatchEvent(new Event("productsReady"));
   };
   document.head.appendChild(s);
@@ -154,6 +156,7 @@ function navigateTo(viewId) {
   document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active-view"));
 
   if (viewId !== "catalog" && viewId !== "product") currentActiveCategory = "";
+  if (viewId === "wishlist") renderWishlistPage();
   updateDropdownDots();
 
   const homeIcon = document.getElementById("headerHomeIcon");
@@ -185,6 +188,82 @@ window.onclick = function (e) {
     document.querySelectorAll(".dropdown-content.show").forEach(d => d.classList.remove("show"));
   }
 };
+
+// ============================================================
+// WISHLIST
+// ============================================================
+function saveWishlist() {
+  localStorage.setItem("bamtol_wishlist", JSON.stringify(wishlist));
+  updateWishlistBadge();
+}
+
+function isWishlisted(id) {
+  return wishlist.includes(String(id));
+}
+
+function toggleWishlist(id) {
+  id = String(id);
+  if (isWishlisted(id)) {
+    wishlist = wishlist.filter(x => x !== id);
+  } else {
+    wishlist.push(id);
+  }
+  saveWishlist();
+  refreshWishlistIcons();
+  if (document.getElementById("wishlist-view")?.classList.contains("active-view")) {
+    renderWishlistPage();
+  }
+}
+
+function updateWishlistBadge() {
+  const badge = document.getElementById("wishlistBadge");
+  if (!badge) return;
+  if (wishlist.length > 0) {
+    badge.textContent = wishlist.length;
+    badge.style.display = "inline-block";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+function refreshWishlistIcons() {
+  document.querySelectorAll(".wishlist-btn").forEach(btn => {
+    const id = btn.getAttribute("data-id");
+    btn.textContent = isWishlisted(id) ? "❤️" : "🤍";
+  });
+}
+
+function renderWishlistPage() {
+  const grid = document.getElementById("wishlist-display");
+  if (!grid) return;
+
+  const items = allProducts.filter(p => isWishlisted(p.id));
+
+  if (items.length === 0) {
+    grid.innerHTML = `<p style="text-align:center;color:#888;width:100%;padding:40px;">Your wishlist is empty. Tap the heart on any product to save it here.</p>`;
+    return;
+  }
+
+  grid.innerHTML = items.map(p => productCardHTML(p)).join("");
+}
+
+async function downloadProductImage(url, name) {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const ext = url.split(".").pop().split("?")[0] || "jpg";
+    const safeName = name.replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "");
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${safeName}.${ext}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  } catch (e) {
+    alert("Couldn't download image. Try long-pressing the image instead.");
+  }
+}
 
 function updateDropdownDots() {
   ["clothing", "footwear", "accessories", "jewelry"].forEach(cat => {
@@ -336,6 +415,7 @@ return `
   <div class="product-card" onclick="openProductDetail('${p.id}')">
     ${stockBadge}
     <button class="share-card-btn" onclick="event.stopPropagation(); shareProduct('${escHtml(p.name)}', '${escHtml(p.hashtags || "")}')">🔗</button>
+    <button class="wishlist-btn" data-id="${p.id}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">${isWishlisted(p.id) ? "❤️" : "🤍"}</button>
       <img src="${p.image_url}" class="product-img" alt="${escHtml(p.name)}" loading="lazy" onerror="this.src='gii.png'">
     <div class="product-info">
       <h3 class="product-title">${escHtml(p.name)}</h3>
