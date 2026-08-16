@@ -14,23 +14,17 @@ let selectedRow1Tag    = "All";
 let selectedRow2Tag    = "All";
 let activeCurrency     = "NGN";
 const usdRate          = 1280;
+let carouselInterval   = null;
 const promoMessages = [
   "✨ Free Nationwide Shipping On Orders Over ₦150,000 This Weekend! ✨",
   "🛍️ New Arrivals Just Dropped — Shop The Latest Collections Now!",
   "💛 Special Deals Available — Check Our Homepage Offers Today!",
   "📦 Fast Delivery Across Nigeria — Order On WhatsApp Now!"
 ];
-let promoIndex = 0;
-setInterval(() => {
-  const banner = document.getElementById("promoBanner");
-  if (!banner) return;
-  banner.style.opacity = "0";
-  setTimeout(() => {
-    promoIndex = (promoIndex + 1) % promoMessages.length;
-    banner.textContent = promoMessages[promoIndex];
-    banner.style.opacity = "1";
-  }, 400);
-}, 4000);
+const promoTrack = document.getElementById("promoTrack");
+if (promoTrack) {
+  promoTrack.textContent = promoMessages.join("     •     ");
+}
 
 // Category display info (matches your original storeData titles)
 const categoryMeta = {
@@ -100,7 +94,7 @@ function navigateTo(viewId) {
   document.getElementById("categoryMenu").classList.remove("show");
   document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active-view"));
 
-  if (viewId !== "catalog") currentActiveCategory = "";
+ if (viewId !== "catalog" && viewId !== "product") currentActiveCategory = "";
   updateDropdownDots();
 
   const homeIcon = document.getElementById("headerHomeIcon");
@@ -268,22 +262,171 @@ function productCardHTML(p, isDeal = false) {
   const priceStyle = isDeal ? `style="background-color:#d4af37;color:#111;"` : "";
   const inStock = p.in_stock !== false;
   const stockBadge = !inStock ? `<div class="out-of-stock-badge">Sold Out</div>` : "";
-  const waButton = inStock
-    ? `<a href="https://wa.me/2348027978792?text=${waMsg}" target="_blank" class="order-whatsapp-btn">${isDeal ? "Claim Deal on WhatsApp" : "Order on WhatsApp"}</a>`
-    : `<button class="order-whatsapp-btn sold-out-btn" disabled>Sold Out</button>`;
+ const waButton = inStock
+    ? `<a href="https://wa.me/2348027978792?text=${waMsg}" target="_blank" class="order-whatsapp-btn" onclick="event.stopPropagation()">${isDeal ? "Claim Deal on WhatsApp" : "Order on WhatsApp"}</a>`
+    : `<button class="order-whatsapp-btn sold-out-btn" disabled onclick="event.stopPropagation()">Sold Out</button>`;
 return `
-  <div class="product-card">
+  <div class="product-card" onclick="openProductDetail('${p.id}')">
     ${stockBadge}
-    <button class="share-card-btn" onclick="shareProduct('${escHtml(p.name)}', '${escHtml(p.hashtags || "")}')">🔗</button>
+    <button class="share-card-btn" onclick="event.stopPropagation(); shareProduct('${escHtml(p.name)}', '${escHtml(p.hashtags || "")}')">🔗</button>
       <img src="${p.image_url}" class="product-img" alt="${escHtml(p.name)}" loading="lazy" onerror="this.src='gii.png'">
     <div class="product-info">
       <h3 class="product-title">${escHtml(p.name)}</h3>
       <p class="product-desc">${escHtml(p.description || "")}</p>
       <div class="product-tags-display">${hashHTML}</div>
       <p class="product-price" ${priceStyle}>${formatPrice(p.price)}</p>
+      ${inStock && p.quantity != null ? `<p class="product-qty">${p.quantity} in stock</p>` : ""}
     </div>
-    ${waButton}
+   ${waButton}
   </div>`;
+}
+
+  // ============================================================
+// PRODUCT DETAIL PAGE
+// ============================================================
+function openProductDetail(id) {
+  const p = allProducts.find(x => x.id == id);
+  if (!p) return;
+  renderProductDetail(p);
+  renderRelatedProducts(p);
+  navigateTo("product");
+}
+
+function renderProductDetail(p) {
+  const container = document.getElementById("product-detail-content");
+  const inStock = p.in_stock !== false;
+  const waMsg = encodeURIComponent(
+    `Hello Bamtol World! I would like to order the ${p.name} (${formatPrice(p.price)}). Is it available?`
+  );
+  const waButton = inStock
+    ? `<a href="https://wa.me/2348027978792?text=${waMsg}" target="_blank" class="order-whatsapp-btn">Order on WhatsApp</a>`
+    : `<button class="order-whatsapp-btn sold-out-btn" disabled>Sold Out</button>`;
+
+  const hashtags = (p.hashtags || "").split(" ").filter(Boolean);
+  const hashHTML = hashtags.map(h =>
+    `<span onclick="clickHash('${h}'); navigateTo('catalog');">${h}</span>`
+  ).join(" ");
+
+  const images = (p.images && p.images.length) ? p.images : [p.image_url];
+
+  const slidesHTML = images.map(url =>
+    `<img src="${url}" alt="${escHtml(p.name)}" onerror="this.src='gii.png'">`
+  ).join("");
+
+  const dotsHTML = images.length > 1
+    ? images.map((_, i) => `<span class="carousel-dot${i === 0 ? " active-dot" : ""}" onclick="goToSlide(${i})"></span>`).join("")
+    : "";
+
+  container.innerHTML = `
+    <button class="back-btn" onclick="navigateTo('catalog')">&larr; Back</button>
+    <div class="detail-grid">
+      <div>
+        <div class="carousel-container">
+          <div class="carousel-track" id="carouselTrack">${slidesHTML}</div>
+        </div>
+        <div class="carousel-dots" id="carouselDots">${dotsHTML}</div>
+      </div>
+      <div class="detail-info">
+        <h2>${escHtml(p.name)}</h2>
+        <p class="detail-price">${formatPrice(p.price)}</p>
+        <p class="detail-desc">${escHtml(p.description || "")}</p>
+        <div class="product-tags-display">${hashHTML}</div>
+        ${p.quantity != null && inStock ? `<p class="product-qty">${p.quantity} in stock</p>` : ""}
+        ${waButton}
+      </div>
+    </div>
+  `;
+
+  initCarousel(images.length);
+}
+
+function initCarousel(count) {
+  if (carouselInterval) clearInterval(carouselInterval);
+  const track = document.getElementById("carouselTrack");
+  if (!track || count <= 1) return;
+
+  let index = 0;
+
+  track.addEventListener("scroll", () => {
+    const newIndex = Math.round(track.scrollLeft / track.clientWidth);
+    if (newIndex !== index) {
+      index = newIndex;
+      updateDots(index);
+    }
+  });
+
+  // --- Mouse drag support for desktop ---
+  let isDown = false;
+  let startX = 0;
+  let startScroll = 0;
+
+  track.addEventListener("mousedown", e => {
+    isDown = true;
+    track.classList.add("dragging");
+    startX = e.pageX;
+    startScroll = track.scrollLeft;
+    if (carouselInterval) clearInterval(carouselInterval);
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!isDown) return;
+    isDown = false;
+    track.classList.remove("dragging");
+    const newIndex = Math.round(track.scrollLeft / track.clientWidth);
+    index = newIndex;
+    track.scrollTo({ left: index * track.clientWidth, behavior: "smooth" });
+    updateDots(index);
+    restartAutoScroll(track, () => index, i => { index = i; }, count);
+  });
+
+  window.addEventListener("mousemove", e => {
+    if (!isDown) return;
+    e.preventDefault();
+    const walk = e.pageX - startX;
+    track.scrollLeft = startScroll - walk;
+  });
+
+  restartAutoScroll(track, () => index, i => { index = i; }, count);
+}
+
+function restartAutoScroll(track, getIndex, setIndex, count) {
+  if (carouselInterval) clearInterval(carouselInterval);
+  carouselInterval = setInterval(() => {
+    const next = (getIndex() + 1) % count;
+    setIndex(next);
+    track.scrollTo({ left: next * track.clientWidth, behavior: "smooth" });
+    updateDots(next);
+  }, 5000);
+}
+function updateDots(index) {
+  document.querySelectorAll("#carouselDots .carousel-dot").forEach((dot, i) => {
+    dot.classList.toggle("active-dot", i === index);
+  });
+}
+
+function goToSlide(i) {
+  const track = document.getElementById("carouselTrack");
+  if (!track) return;
+  track.scrollTo({ left: i * track.clientWidth, behavior: "smooth" });
+  updateDots(i);
+
+  const count = document.querySelectorAll("#carouselDots .carousel-dot").length;
+  let index = i;
+  restartAutoScroll(track, () => index, val => { index = val; }, count);
+}
+
+function renderRelatedProducts(p) {
+  const grid = document.getElementById("related-display");
+  if (!grid) return;
+
+  const related = allProducts.filter(x => x.category === p.category && x.id != p.id).slice(0, 4);
+
+  if (related.length === 0) {
+    grid.innerHTML = `<p style="text-align:center;color:#888;padding:20px;">No related products found.</p>`;
+    return;
+  }
+
+  grid.innerHTML = related.map(x => productCardHTML(x)).join("");
 }
 
 // ============================================================
@@ -326,4 +469,4 @@ function escHtml(str) {
   return (str || "")
     .replace(/&/g, "&amp;").replace(/</g, "&lt;")
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
+  }
