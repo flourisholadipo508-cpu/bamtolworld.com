@@ -3,10 +3,20 @@ body { background-color: #ffffff; color: #111111; line-height: 1.6; padding-top:
 
 /* Announcement Ticker Bar */
 .promo-banner {
-    background-color: #d4af37; color: #111111; text-align: center;
-    padding: 6px 20px; font-size: 0.8rem; font-weight: bold;
+    background-color: #d4af37; color: #111111;
+    padding: 6px 0; font-size: 0.8rem; font-weight: bold;
     text-transform: uppercase; letter-spacing: 1px;
     position: fixed; top: 0; width: 100%; z-index: 1001;
+    overflow: hidden; white-space: nowrap;
+}
+.promo-track {
+    display: inline-block;
+    padding-left: 100%;
+    animation: promoScroll 22s linear infinite;
+}
+@keyframes promoScroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
 }
 
 header {
@@ -94,7 +104,8 @@ header {
 
 .product-info { padding: 15px; text-align: center; flex-grow: 1; }
 .product-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
-.product-desc { font-size: 0.8rem; color: #555; margin-bottom: 8px; font-family: Arial, sans-serif; }
+.product-desc { font-size: 0.8rem; color: #555; margin-bottom: 8px; font-family: Arial, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }.product-desc { font-size: 0.8rem; color: #555; margin-bottom: 8px; font-family: Arial, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.product-card { cursor: pointer; }
 .product-tags-display { font-size: 0.75rem; color: #d4af37; font-weight: bold; margin-bottom: 8px; font-family: Arial, sans-serif; cursor: pointer; }
 .product-price { font-weight: bold; color: #d4af37; font-size: 1rem; background-color: #111; display: inline-block; padding: 3px 12px; border-radius: 12px; margin-bottom: 10px; }
 
@@ -110,20 +121,23 @@ footer { background-color: #111; color: #999; text-align: center; padding: 20px;
 
 /* Premium Mobile Fixes (Resolves text overlap and column compression) */
 @media (max-width: 600px) {
-    header { padding: 0.8rem 4%; }
-    .logo-text { font-size: 1.2rem; letter-spacing: 1px; }
-    .logo-img { width: 30px; height: 30px; }
-    .right-nav { gap: 8px; }
-    .home-btn { padding: 4px 10px; font-size: 1rem; }
-    .currency-toggle { padding: 4px 8px; font-size: 0.65rem; }
+    header { padding: 0.7rem 3%; }
+    .logo-container { gap: 6px; }
+    .logo-text { font-size: 1rem; letter-spacing: 0.5px; white-space: nowrap; }
+    .logo-img { width: 26px; height: 26px; }
+    .right-nav { gap: 5px; }
+    .home-btn { padding: 4px 8px; font-size: 0.9rem; }
+    .currency-toggle { padding: 4px 8px; font-size: 0.6rem; white-space: nowrap; }
+    .three-dots-btn { font-size: 1.3rem; padding: 0 2px; }
     .product-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
     .product-img { height: 180px; }
     .product-title { font-size: 0.95rem; }
     .product-desc { font-size: 0.75rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .product-price { font-size: 0.85rem; padding: 2px 8px; }
-    .order-whatsapp-btn { font-size: 0.7rem; padding: 6px; width: 90%; }
+    .order-whatsapp-btn { font-size: 0.68rem; padding: 8px 4px; width: 92%; white-space: nowrap; letter-spacing: 0.5px; }
 }
-..out-of-stock-badge {
+
+.out-of-stock-badge {
   position: absolute; top: 12px; left: 12px;
   background: rgba(0,0,0,0.75); color: #ccc;
   font-size: 0.7rem; font-weight: bold;
@@ -136,4 +150,57 @@ footer { background-color: #111; color: #999; text-align: center; padding: 20px;
   border-color: #ccc !important; cursor: not-allowed !important;
   pointer-events: none;
 }
-.promo-banner { transition: opacity 0.4s ease; }
+.back-btn {
+  background: none; border: 1px solid #111; color: #111;
+  padding: 8px 18px; font-size: 0.8rem; font-weight: bold;
+  text-transform: uppercase; border-radius: 20px; cursor: pointer;
+  margin: 20px 0; font-family: Arial, sans-serif;
+}
+.detail-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+  background: #fff; border: 1px solid #d4af37; border-radius: 12px;
+  padding: 25px; margin-bottom: 40px;
+}
+.carousel-container { position: relative; }
+.carousel-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  border-radius: 8px;
+  scrollbar-width: none;
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track img {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.carousel-dot.active-dot { background: #d4af37; }
+.detail-info h2 { font-size: 1.6rem; margin-bottom: 10px; }
+.detail-price {
+  font-weight: bold; color: #d4af37; font-size: 1.1rem; background-color: #111;
+  display: inline-block; padding: 4px 14px; border-radius: 12px; margin-bottom: 14px;
+}
+.detail-desc { font-size: 0.9rem; color: #444; margin-bottom: 14px; font-family: Arial, sans-serif; line-height: 1.6; }
+.related-section h2 { text-align: center; font-size: 1.4rem; text-transform: uppercase; margin-bottom: 20px; }
+
+@media (max-width: 600px) {
+  .detail-grid { grid-template-columns: 1fr; padding: 15px; }
+}
