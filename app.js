@@ -15,6 +15,8 @@ let selectedRow2Tag    = "All";
 let activeCurrency     = "NGN";
 const usdRate          = 1280;
 let carouselInterval   = null;
+let currentProductId   = null;
+let isPopping          = false;
 const promoMessages = [
   "✨ Free Nationwide Shipping On Orders Over ₦150,000 This Weekend! ✨",
   "🛍️ New Arrivals Just Dropped — Shop The Latest Collections Now!",
@@ -40,16 +42,73 @@ const pageTitles = {
 };
 
 // ============================================================
+// BROWSER BACK/FORWARD SUPPORT
+// ============================================================
+window.addEventListener("popstate", (e) => {
+  const state = e.state || { view: "home" };
+  isPopping = true;
+
+  if (state.view === "product" && state.productId) {
+    const p = allProducts.find(x => x.id == state.productId);
+    if (p) {
+      currentProductId = p.id;
+      renderProductDetail(p);
+      renderRelatedProducts(p);
+    }
+  } else if (state.view === "catalog" && state.category) {
+    currentActiveCategory = state.category;
+    const meta = categoryMeta[state.category] || { title: "Collection", subtitle: "Curated boutique offerings." };
+    document.getElementById("category-title").innerText = meta.title;
+    document.getElementById("category-subtitle").innerText = meta.subtitle;
+    buildFilterBar();
+    renderCatalogItems();
+  }
+
+  navigateTo(state.view || "home");
+  isPopping = false;
+});
+
+window.addEventListener("productsReady", () => {
+  const existing = history.state;
+  
+  if (existing && existing.view && existing.view !== "home") {
+    isPopping = true;
+
+    if (existing.view === "product" && existing.productId) {
+      const p = allProducts.find(x => x.id == existing.productId);
+      if (p) {
+        currentProductId = p.id;
+        renderProductDetail(p);
+        renderRelatedProducts(p);
+      }
+    } else if (existing.view === "catalog" && existing.category) {
+      currentActiveCategory = existing.category;
+      const meta = categoryMeta[existing.category] || { title: "Collection", subtitle: "Curated boutique offerings." };
+      document.getElementById("category-title").innerText = meta.title;
+      document.getElementById("category-subtitle").innerText = meta.subtitle;
+      buildFilterBar();
+      renderCatalogItems();
+    }
+
+    navigateTo(existing.view);
+    isPopping = false;
+  } else {
+    history.replaceState({ view: "home" }, "", location.href);
+  }
+});
+
+// ============================================================
 // BOOT — load Supabase SDK then fetch products
 // ============================================================
 (function loadSDK() {
   const s = document.createElement("script");
   s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
-  s.onload = async () => {
+ s.onload = async () => {
     window._db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     showSpinner("deals-display");
     await fetchAllProducts();
     renderHomeDeals();
+    window.dispatchEvent(new Event("productsReady"));
   };
   document.head.appendChild(s);
 })();
@@ -94,7 +153,7 @@ function navigateTo(viewId) {
   document.getElementById("categoryMenu").classList.remove("show");
   document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active-view"));
 
- if (viewId !== "catalog" && viewId !== "product") currentActiveCategory = "";
+  if (viewId !== "catalog" && viewId !== "product") currentActiveCategory = "";
   updateDropdownDots();
 
   const homeIcon = document.getElementById("headerHomeIcon");
@@ -103,6 +162,14 @@ function navigateTo(viewId) {
   document.getElementById(`${viewId}-view`).classList.add("active-view");
   window.scrollTo(0, 0);
   document.title = pageTitles[viewId] || "Bamtol World";
+
+  if (!isPopping) {
+    history.pushState(
+      { view: viewId, category: currentActiveCategory, productId: currentProductId },
+      "",
+      location.href
+    );
+  }
 }
 
 // ============================================================
@@ -287,6 +354,7 @@ return `
 function openProductDetail(id) {
   const p = allProducts.find(x => x.id == id);
   if (!p) return;
+  currentProductId = p.id;
   renderProductDetail(p);
   renderRelatedProducts(p);
   navigateTo("product");
@@ -318,7 +386,7 @@ function renderProductDetail(p) {
     : "";
 
   container.innerHTML = `
-    <button class="back-btn" onclick="navigateTo('catalog')">&larr; Back</button>
+    <button class="back-btn" onclick="history.back()">&larr; Back</button>
     <div class="detail-grid">
       <div>
         <div class="carousel-container">
