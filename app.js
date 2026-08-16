@@ -263,7 +263,7 @@ function productCardHTML(p, isDeal = false) {
   const inStock = p.in_stock !== false;
   const stockBadge = !inStock ? `<div class="out-of-stock-badge">Sold Out</div>` : "";
  const waButton = inStock
-    ? `<a href="https://wa.me/2348027978792?text=${waMsg}" target="_blank" class="order-whatsapp-btn" onclick="event.stopPropagation()">${isDeal ? "Claim Deal on WhatsApp" : "Order on WhatsApp"}</a>`
+    ? `<a href="https://wa.me/2348027978792?text=${waMsg}" target="_blank" class="order-whatsapp-btn" onclick="event.stopPropagation()">${isDeal ? "Claim on WhatsApp" : "Order on WhatsApp"}</a>`
     : `<button class="order-whatsapp-btn sold-out-btn" disabled onclick="event.stopPropagation()">Sold Out</button>`;
 return `
   <div class="product-card" onclick="openProductDetail('${p.id}')">
