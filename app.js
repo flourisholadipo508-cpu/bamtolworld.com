@@ -34,12 +34,17 @@ const categoryMeta = {
   clothing:    { title: "Premium Clothing",    subtitle: "Luxury outer layers and tailored silhouettes." },
   footwear:    { title: "Signature Footwear",  subtitle: "Hand-finished premium pairs structured for grace." },
   accessories: { title: "Luxury Accessories",  subtitle: "Distinct accents to complete an elite ensemble." },
-  jewelry:     { title: "Fine Jewelry",        subtitle: "Exquisite investment statement pieces." }
+  jewelry:     { title: "Fine Jewelry",        subtitle: "Exquisite investment statement pieces." },
+  home:        { title: "Home Essentials",     subtitle: "Kitchenware, appliances, and everyday household needs." }
+};
+
+const filterLabels = {
+  home: { row1: "Type:", row2: "Room:" }
 };
 const pageTitles = {
   home:    "Bamtol World | Your Style Haven",
-  catalog: "Bamtol World | Collections",
-  about:   "Bamtol World | About Us"
+  about:   "Bamtol World | About Us",
+  wishlist: "Bamtol World | Wishlist"
 };
 
 // ============================================================
@@ -162,9 +167,17 @@ function navigateTo(viewId) {
   const homeIcon = document.getElementById("headerHomeIcon");
   if (homeIcon) homeIcon.style.display = viewId === "home" ? "none" : "flex";
 
-  document.getElementById(`${viewId}-view`).classList.add("active-view");
+   document.getElementById(`${viewId}-view`).classList.add("active-view");
   window.scrollTo(0, 0);
-  document.title = pageTitles[viewId] || "Bamtol World";
+
+  if (viewId === "catalog" && currentActiveCategory) {
+    const catNames = { clothing: "Clothing", footwear: "Footwear", accessories: "Accessories", jewelry: "Jewelry", home: "Home Essentials" };
+    document.title = "Bamtol World | " + (catNames[currentActiveCategory] || "Collection");
+  } else if (viewId === "product") {
+    // title stays whatever was last set by renderProductDetail, no change needed
+  } else {
+    document.title = pageTitles[viewId] || "Bamtol World";
+  }
 
   if (!isPopping) {
     history.pushState(
@@ -266,7 +279,7 @@ async function downloadProductImage(url, name) {
 }
 
 function updateDropdownDots() {
-  ["clothing", "footwear", "accessories", "jewelry"].forEach(cat => {
+  ["clothing", "footwear", "accessories", "jewelry", "home"].forEach(cat => {
     const el = document.getElementById(`dot-${cat}`);
     if (el) el.innerHTML = cat === currentActiveCategory ? "&#8226;" : "";
   });
@@ -277,7 +290,7 @@ function updateDropdownDots() {
 // ============================================================
 function openCatalog(categoryKey) {
   currentActiveCategory = categoryKey;
-  const catNames = { clothing: "Clothing", footwear: "Footwear", accessories: "Accessories", jewelry: "Jewelry" };
+    const catNames = { clothing: "Clothing", footwear: "Footwear", accessories: "Accessories", jewelry: "Jewelry", home: "Home Essentials" };
   document.title = "Bamtol World | " + (catNames[categoryKey] || "Collection");
   selectedRow1Tag = "All";
   selectedRow2Tag = "All";
@@ -298,16 +311,37 @@ function openCatalog(categoryKey) {
 // ============================================================
 // FILTER BAR — built from real Supabase data
 // ============================================================
+function normalizeTag(val) {
+  return (val || "").trim().replace(/\s*-\s*/g, "-").replace(/\s+/g, " ");
+}
+
 function buildFilterBar() {
   const products = allProducts.filter(p => p.category === currentActiveCategory);
 
-  // Collect unique values
-  const profiles = ["All", ...new Set(products.map(p => p.profile).filter(Boolean))];
-  const styles   = ["All", ...new Set(products.map(p => p.style).filter(Boolean))];
+  // Collect unique values (normalized for spacing/dash inconsistencies, case-insensitive dedupe keeping first-seen casing)
+  const profileMap = new Map();
+  products.forEach(p => {
+    const norm = normalizeTag(p.profile);
+    if (norm && !profileMap.has(norm.toLowerCase())) profileMap.set(norm.toLowerCase(), norm);
+  });
+  const styleMap = new Map();
+  products.forEach(p => {
+    const norm = normalizeTag(p.style);
+    if (norm && !styleMap.has(norm.toLowerCase())) styleMap.set(norm.toLowerCase(), norm);
+  });
+
+  const profiles = ["All", ...profileMap.values()];
+  const styles   = ["All", ...styleMap.values()];
 
   const r1Box = document.getElementById("row1-tags");
   const r2Box = document.getElementById("row2-tags");
   if (!r1Box || !r2Box) return;
+
+  const labels = filterLabels[currentActiveCategory] || { row1: "Profile:", row2: "Style:" };
+  const r1Label = document.getElementById("row1-label");
+  const r2Label = document.getElementById("row2-label");
+  if (r1Label) r1Label.textContent = labels.row1;
+  if (r2Label) r2Label.textContent = labels.row2;
 
   r1Box.innerHTML = profiles.map(t =>
     `<button class="tag-btn ${t === selectedRow1Tag ? "active-tag" : ""}" onclick="setFilter('r1','${t}')">${t}</button>`
@@ -351,9 +385,8 @@ function renderCatalogItems() {
   const searchVal = (document.getElementById("catalogSearch")?.value || "").toLowerCase().trim();
   let items = allProducts.filter(p => p.category === currentActiveCategory);
 
-  if (selectedRow1Tag !== "All") items = items.filter(p => p.profile === selectedRow1Tag);
-  if (selectedRow2Tag !== "All") items = items.filter(p => p.style   === selectedRow2Tag);
-
+   if (selectedRow1Tag !== "All") items = items.filter(p => normalizeTag(p.profile).toLowerCase() === selectedRow1Tag.toLowerCase());
+  if (selectedRow2Tag !== "All") items = items.filter(p => normalizeTag(p.style).toLowerCase() === selectedRow2Tag.toLowerCase());
   if (searchVal) {
     items = items.filter(p =>
       p.name?.toLowerCase().includes(searchVal) ||
@@ -409,7 +442,7 @@ function productCardHTML(p, isDeal = false) {
   const inStock = p.in_stock !== false;
   const stockBadge = !inStock ? `<div class="out-of-stock-badge">Sold Out</div>` : "";
  const waButton = inStock
-    ? `<a href="https://wa.me/2348027978792?text=${waMsg}" target="_blank" class="order-whatsapp-btn" onclick="event.stopPropagation()">${isDeal ? "Claim on WhatsApp" : "Order on WhatsApp"}</a>`
+    ? `<a href="https://wa.me/2347064847313?text=${waMsg}" target="_blank" class="order-whatsapp-btn" onclick="event.stopPropagation()">${isDeal ? "Claim on WhatsApp" : "Order on WhatsApp"}</a>`
     : `<button class="order-whatsapp-btn sold-out-btn" disabled onclick="event.stopPropagation()">Sold Out</button>`;
 return `
   <div class="product-card" onclick="openProductDetail('${p.id}')">
@@ -441,13 +474,14 @@ function openProductDetail(id) {
 }
 
 function renderProductDetail(p) {
+  document.title = "Bamtol World | " + p.name;
   const container = document.getElementById("product-detail-content");
   const inStock = p.in_stock !== false;
   const waMsg = encodeURIComponent(
     `Hello Bamtol World! I would like to order the ${p.name} (${formatPrice(p.price)}). Is it available?`
   );
   const waButton = inStock
-    ? `<a href="https://wa.me/2348027978792?text=${waMsg}" target="_blank" class="order-whatsapp-btn">Order on WhatsApp</a>`
+    ? `<a href="https://wa.me/2347064847313?text=${waMsg}" target="_blank" class="order-whatsapp-btn">Order on WhatsApp</a>`
     : `<button class="order-whatsapp-btn sold-out-btn" disabled>Sold Out</button>`;
 
   const hashtags = (p.hashtags || "").split(" ").filter(Boolean);
