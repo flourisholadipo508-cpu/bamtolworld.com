@@ -109,12 +109,14 @@ window.addEventListener("productsReady", () => {
 (function loadSDK() {
   const s = document.createElement("script");
   s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
- s.onload = async () => {
+   s.onload = async () => {
     window._db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    showBrandLoader();
     showSpinner("deals-display");
-   await fetchAllProducts();
+    await fetchAllProducts();
     renderHomeDeals();
     updateWishlistBadge();
+    hideBrandLoader();
     window.dispatchEvent(new Event("productsReady"));
   };
   document.head.appendChild(s);
@@ -156,7 +158,38 @@ function formatPrice(amt) {
 // ============================================================
 // NAVIGATION
 // ============================================================
+function showBrandLoader() {
+  document.getElementById("brandLoader")?.classList.add("active");
+}
+function hideBrandLoader() {
+  document.getElementById("brandLoader")?.classList.remove("active");
+}
+
+function showPageLoader() {
+  const loader = document.getElementById("pageLoader");
+  if (!loader) return;
+  loader.style.width = "0%";
+  loader.classList.add("active");
+  requestAnimationFrame(() => { loader.style.width = "70%"; });
+}
+
+function hidePageLoader() {
+  const loader = document.getElementById("pageLoader");
+  if (!loader) return;
+  loader.style.width = "100%";
+  setTimeout(() => {
+    loader.classList.remove("active");
+    loader.style.width = "0%";
+  }, 300);
+}
+
 function navigateTo(viewId) {
+  // Save current scroll position onto the entry we're leaving, before switching views
+  if (!isPopping && history.state) {
+    history.replaceState({ ...history.state, scrollY: window.scrollY }, "", location.href);
+  }
+
+  showPageLoader();
   document.getElementById("categoryMenu").classList.remove("show");
   document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active-view"));
 
@@ -167,10 +200,17 @@ function navigateTo(viewId) {
   const homeIcon = document.getElementById("headerHomeIcon");
   if (homeIcon) homeIcon.style.display = viewId === "home" ? "none" : "flex";
 
-     document.getElementById(`${viewId}-view`).classList.add("active-view");
-  if (!isPopping) window.scrollTo(0, 0);
-  
-  if (viewId === "catalog" && currentActiveCategory) {
+       document.getElementById(`${viewId}-view`).classList.add("active-view");
+
+  if (isPopping && history.state && typeof history.state.scrollY === "number") {
+    requestAnimationFrame(() => {
+      window.scrollTo(0, history.state.scrollY);
+    });
+  } else if (!isPopping) {
+    window.scrollTo(0, 0);
+  }
+
+    if (viewId === "catalog" && currentActiveCategory) {
     const catNames = { clothing: "Clothing", footwear: "Footwear", accessories: "Accessories", jewelry: "Jewelry", home: "Home Essentials" };
     document.title = "Bamtol World | " + (catNames[currentActiveCategory] || "Collection");
   } else if (viewId === "product") {
@@ -178,6 +218,8 @@ function navigateTo(viewId) {
   } else {
     document.title = pageTitles[viewId] || "Bamtol World";
   }
+
+  hidePageLoader();
 
   if (!isPopping) {
     history.pushState(
@@ -401,11 +443,35 @@ function renderCatalogItems() {
   }
 
   grid.innerHTML = items.map(p => productCardHTML(p)).join("");
+  observeCardFadeIns();
+}
+
+// ============================================================
+// SCROLL FADE-IN OBSERVER
+// ============================================================
+let fadeObserver = null;
+
+function observeCardFadeIns() {
+  if (!fadeObserver) {
+    fadeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("fade-in");
+          fadeObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+  }
+
+  document.querySelectorAll(".product-card:not(.fade-in)").forEach(card => {
+    fadeObserver.observe(card);
+  });
 }
 
 // ============================================================
 // RENDER HOME DEALS
-// ============================================================
+
+
 function renderHomeDeals() {
   const target = document.getElementById("deals-display");
   if (!target) return;
@@ -420,7 +486,8 @@ function renderHomeDeals() {
 
   // Wrap in same grid as catalog
   target.className = "product-grid";
-  target.innerHTML = deals.map(p => productCardHTML(p, true)).join("");
+   target.innerHTML = deals.map(p => productCardHTML(p, true)).join("");
+  observeCardFadeIns();
 }
 
 // ============================================================
@@ -467,7 +534,9 @@ return `
 function openProductDetail(id) {
   const p = allProducts.find(x => x.id == id);
   if (!p) return;
+  lastView = document.querySelector(".view-section.active-view")?.id.replace("-view", "") || "home";
   currentProductId = p.id;
+  showBrandLoader();
   renderProductDetail(p);
   renderRelatedProducts(p);
   navigateTo("product");
@@ -525,6 +594,26 @@ function renderProductDetail(p) {
 function initCarousel(count) {
   if (carouselInterval) clearInterval(carouselInterval);
   const track = document.getElementById("carouselTrack");
+
+  if (track) {
+    const imgs = track.querySelectorAll("img");
+    let loaded = 0;
+    const checkDone = () => {
+      loaded++;
+      if (loaded >= imgs.length) hideBrandLoader();
+    };
+    if (imgs.length === 0) hideBrandLoader();
+    imgs.forEach(img => {
+      if (img.complete) checkDone();
+      else {
+        img.addEventListener("load", checkDone, { once: true });
+        img.addEventListener("error", checkDone, { once: true });
+      }
+    });
+  } else {
+    hideBrandLoader();
+  }
+
   if (!track || count <= 1) return;
 
   let index = 0;
@@ -608,7 +697,8 @@ function renderRelatedProducts(p) {
     return;
   }
 
-  grid.innerHTML = related.map(x => productCardHTML(x)).join("");
+   grid.innerHTML = related.map(x => productCardHTML(x)).join("");
+  observeCardFadeIns();
 }
 
 // ============================================================

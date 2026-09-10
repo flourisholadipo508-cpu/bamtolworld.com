@@ -19,6 +19,49 @@ body { background-color: #ffffff; color: #111111; line-height: 1.6; padding-top:
     to { transform: translateX(-100%); }
 }
 
+.page-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: #111111;
+  box-shadow: 0 0 6px rgba(0,0,0,0.5);
+  z-index: 2000;
+  transition: width 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+
+.page-loader.active {
+  opacity: 1;
+}
+
+.brand-loader {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.brand-loader.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.brand-loader img {
+  width: 70px;
+  height: 70px;
+  animation: brandPulse 1.4s ease-in-out infinite;
+}
+@keyframes brandPulse {
+  0%, 100% { transform: scale(0.85); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
 header {
     background-color: #111111; border-bottom: 2px solid #d4af37;
     padding: 1rem 5%; display: flex; justify-content: space-between;
@@ -97,7 +140,23 @@ header {
 .tag-btn.active-tag { border-color: #d4af37; background-color: #111; color: #fff; }
 
 .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-.product-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+.product-card {
+  background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: space-between; position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.5s ease, translate 0.5s ease;
+  opacity: 0;
+  translate: 0 20px;
+}
+
+.product-card.fade-in {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (hover: hover) {
+  .product-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(0,0,0,0.12); }
+}
+
 .product-img { width: 100%; height: 300px; object-fit: cover; border-bottom: 1px solid #d4af37; background-color: #111; }
 
 .share-card-btn { position: absolute; top: 12px; right: 12px; background-color: rgba(17,17,17,0.8); border: 1px solid #d4af37; color: #d4af37; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; z-index: 10; }

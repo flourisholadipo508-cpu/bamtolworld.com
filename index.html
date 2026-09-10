@@ -10,6 +10,10 @@
     <script src="app.js" defer></script>
 </head>
 <body>
+<div class="page-loader" id="pageLoader"></div>
+<div class="brand-loader" id="brandLoader">
+  <img src="bamtol%20icon.png" alt="Loading">
+</div>
 
     <!-- Promotion Announcement Ticker -->
    <div class="promo-banner"><span class="promo-track" id="promoTrack"></span></div>
@@ -35,7 +39,8 @@
                     <button onclick="openCatalog('clothing')">Clothing <span class="gold-dot" id="dot-clothing"></span></button>
                     <button onclick="openCatalog('footwear')">Footwear <span class="gold-dot" id="dot-footwear"></span></button>
                     <button onclick="openCatalog('accessories')">Accessories <span class="gold-dot" id="dot-accessories"></span></button>
-                    <button onclick="openCatalog('jewelry')">Jewelry <span class="gold-dot" id="dot-jewelry"></span></button>
+                                       <button onclick="openCatalog('jewelry')">Jewelry <span class="gold-dot" id="dot-jewelry"></span></button>
+                    <button onclick="openCatalog('home')">Home Essentials <span class="gold-dot" id="dot-home"></span></button>
                     <button onclick="navigateTo('wishlist')">Wishlist <span class="wishlist-badge" id="wishlistBadge"></span></button>
                     <button onclick="navigateTo('about')">About Us</button>
                 </div>
@@ -80,12 +85,12 @@
 
                 <!-- Multi-Row Filtering Tag Pills Wrapper -->
                 <div class="filter-wrapper">
-                    <div class="filter-row">
-                        <span class="filter-label">Profile:</span>
+                                        <div class="filter-row">
+                        <span class="filter-label" id="row1-label">Profile:</span>
                         <div id="row1-tags"></div>
                     </div>
                     <div class="filter-row">
-                        <span class="filter-label">Style:</span>
+                        <span class="filter-label" id="row2-label">Style:</span>
                         <div id="row2-tags"></div>
                     </div>
                 </div>
@@ -125,7 +130,7 @@
                     <div class="about-block">
                         <h3>Customer Support</h3>
                         <p><strong>Email:</strong> <a href="mailto:Bamtolworld@gmail.com">Bamtolworld@gmail.com</a></p>
-                        <p><strong>WhatsApp Support:</strong> <a href="https://wa.me" target="_blank">08027978792</a></p>
+                        <p><strong>WhatsApp Support:</strong> <a href="https://wa.me/2347064847313" target="_blank">2347064847313</a></p>
                     </div>
                     <div class="about-block">
                         <h3>Boutique Showroom</h3>
