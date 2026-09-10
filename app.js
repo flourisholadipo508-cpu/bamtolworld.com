@@ -167,9 +167,9 @@ function navigateTo(viewId) {
   const homeIcon = document.getElementById("headerHomeIcon");
   if (homeIcon) homeIcon.style.display = viewId === "home" ? "none" : "flex";
 
-   document.getElementById(`${viewId}-view`).classList.add("active-view");
-  window.scrollTo(0, 0);
-
+     document.getElementById(`${viewId}-view`).classList.add("active-view");
+  if (!isPopping) window.scrollTo(0, 0);
+  
   if (viewId === "catalog" && currentActiveCategory) {
     const catNames = { clothing: "Clothing", footwear: "Footwear", accessories: "Accessories", jewelry: "Jewelry", home: "Home Essentials" };
     document.title = "Bamtol World | " + (catNames[currentActiveCategory] || "Collection");
