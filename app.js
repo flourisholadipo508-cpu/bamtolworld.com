@@ -109,14 +109,11 @@ window.addEventListener("productsReady", () => {
 (function loadSDK() {
   const s = document.createElement("script");
   s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
-   s.onload = async () => {
+    s.onload = async () => {
     window._db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    showBrandLoader();
-    showSpinner("deals-display");
     await fetchAllProducts();
     renderHomeDeals();
     updateWishlistBadge();
-    hideBrandLoader();
     window.dispatchEvent(new Event("productsReady"));
   };
   document.head.appendChild(s);
@@ -463,7 +460,10 @@ function observeCardFadeIns() {
     }, { threshold: 0.1 });
   }
 
-  document.querySelectorAll(".product-card:not(.fade-in)").forEach(card => {
+  const cards = document.querySelectorAll(".product-card:not(.fade-in)");
+  cards.forEach((card, i) => {
+    // Stagger initial in-view cards slightly so they don't all pop at once
+    card.style.transitionDelay = `${Math.min(i * 60, 400)}ms`;
     fadeObserver.observe(card);
   });
 }
@@ -516,7 +516,10 @@ return `
     ${stockBadge}
     <button class="share-card-btn" onclick="event.stopPropagation(); shareProduct('${escHtml(p.name)}', '${escHtml(p.hashtags || "")}')">🔗</button>
     <button class="wishlist-btn" data-id="${p.id}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">${isWishlisted(p.id) ? "❤️" : "🤍"}</button>
-      <img src="${p.image_url}" class="product-img" alt="${escHtml(p.name)}" loading="lazy" onerror="this.src='gii.png'">
+            <div class="card-img-shimmer"></div>
+      <img src="${p.image_url}" class="product-img" alt="${escHtml(p.name)}" loading="lazy"
+        onload="this.classList.add('img-loaded'); this.previousElementSibling.classList.add('shimmer-done');"
+        onerror="this.src='gii.png'; this.classList.add('img-loaded'); this.previousElementSibling.classList.add('shimmer-done');">
     <div class="product-info">
       <h3 class="product-title">${escHtml(p.name)}</h3>
       <p class="product-desc">${escHtml(p.description || "")}</p>
