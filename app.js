@@ -571,7 +571,7 @@ function productCardHTML(p, isDeal = false) {
 return `
   <div class="product-card" onclick="openProductDetail('${p.id}')">
     ${stockBadge}
-    <button class="share-card-btn" onclick="event.stopPropagation(); shareProduct('${escHtml(p.name)}', '${escHtml(p.hashtags || "")}')">🔗</button>
+    <button class="share-card-btn" onclick="event.stopPropagation(); shareProduct('${p.id}', '${escHtml(p.name)}', '${escHtml(p.hashtags || "")}')">🔗</button>
     <button class="wishlist-btn" data-id="${p.id}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">${isWishlisted(p.id) ? "❤️" : "🤍"}</button>
             <div class="card-img-shimmer"></div>
       <img src="${p.image_url}" class="product-img" alt="${escHtml(p.name)}" loading="lazy"
@@ -770,8 +770,8 @@ function renderRelatedProducts(p) {
 // ============================================================
 let shareContext = { name: "", hashtags: "", url: "" };
 
-function shareProduct(name, hashtags) {
-  const productUrl = `${location.origin}${location.pathname}?product=${currentProductId}`;
+function shareProduct(id, name, hashtags) {
+  const productUrl = `${location.origin}${location.pathname}?product=${id}`;
   shareContext = { name, hashtags, url: productUrl };
 
   document.getElementById("shareModalTitle").textContent = `Share "${name}"`;
