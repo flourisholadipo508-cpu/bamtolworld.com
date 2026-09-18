@@ -11,6 +11,40 @@
 </head>
 <body>
 <div class="page-loader" id="pageLoader"></div>
+
+<nav class="bottom-nav" id="bottomNav">
+  <div class="nav-item active" id="navHome" onclick="navigateTo('home')">
+    <div class="nav-icon">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </div>
+    <div class="nav-label">Home</div>
+  </div>
+  <div class="nav-item" id="navCollections" onclick="openCatalog('clothing')">
+    <div class="nav-icon">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <g opacity="0.45" transform="translate(-3,-3)">
+          <path d="M5 8h14l-1 13H6L5 8z"/>
+          <path d="M8.5 8V6a3.5 3.5 0 0 1 7 0v2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        </g>
+        <g>
+          <path d="M5 8h14l-1 13H6L5 8z"/>
+          <path d="M8.5 8V6a3.5 3.5 0 0 1 7 0v2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        </g>
+      </svg>
+    </div>
+    <div class="nav-label">Collections</div>
+  </div>
+    <div class="nav-item" id="navHomeEssentials" onclick="openCatalog('home')">
+    <div class="nav-icon">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 2v6M15 2v6"/>
+        <path d="M6 8h12v4a6 6 0 0 1-12 0V8z"/>
+        <path d="M12 18v4"/>
+      </svg>
+    </div>
+    <div class="nav-label">Home Essentials</div>
+  </div>
+</nav>
 <div class="brand-loader" id="brandLoader">
   <img src="bamtol%20icon.png" alt="Loading">
 </div>
@@ -81,6 +115,25 @@
                       <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                      </svg>
                     </button>
+                </div>
+
+                                <div class="cat-tabs" id="catTabs">
+                                    <div class="cat-tab" data-cat="clothing" onclick="openCatalog('clothing')">
+                    <div class="tab-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16 4h-2a2 2 0 0 1-4 0H8L2 8l3 3 2-1.5V21h10V9.5L19 11l3-3-6-4z"/></svg></div>
+                    <div class="tab-label">Clothing</div>
+                  </div>
+                  <div class="cat-tab" data-cat="footwear" onclick="openCatalog('footwear')">
+                    <div class="tab-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M2 18v-3c0-.6.4-1 1-1 1.7 0 3-.9 3.6-2.3l1-2.3a2 2 0 0 1 1.8-1.2c.6 0 1.1.3 1.5.7l1.6 1.9c.8 1 2 1.5 3.3 1.5H19a3 3 0 0 1 3 3v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg></div>
+                    <div class="tab-label">Footwear</div>
+                  </div>
+                  <div class="cat-tab" data-cat="jewelry" onclick="openCatalog('jewelry')">
+                    <div class="tab-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2 8 8h8l-4-6zM4 9l3 3 4.5 9L4 9zm16 0-7.5 12L16 12l4-3zM8.5 9h7L12 20 8.5 9z"/></svg></div>
+                    <div class="tab-label">Jewelry</div>
+                  </div>
+                  <div class="cat-tab" data-cat="accessories" onclick="openCatalog('accessories')">
+                    <div class="tab-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 7V5a4 4 0 0 1 8 0v2h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h2zm2 0h4V5a2 2 0 0 0-4 0v2z"/></svg></div>
+                    <div class="tab-label">Accessories</div>
+                  </div>
                 </div>
 
                 <!-- Multi-Row Filtering Tag Pills Wrapper -->

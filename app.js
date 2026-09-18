@@ -197,7 +197,8 @@ function navigateTo(viewId) {
   const homeIcon = document.getElementById("headerHomeIcon");
   if (homeIcon) homeIcon.style.display = viewId === "home" ? "none" : "flex";
 
-       document.getElementById(`${viewId}-view`).classList.add("active-view");
+         document.getElementById(`${viewId}-view`).classList.add("active-view");
+  updateBottomNavState(viewId);
 
   if (isPopping && history.state && typeof history.state.scrollY === "number") {
     requestAnimationFrame(() => {
@@ -218,7 +219,7 @@ function navigateTo(viewId) {
 
   hidePageLoader();
 
-  if (!isPopping) {
+    if (!isPopping) {
     history.pushState(
       { view: viewId, category: currentActiveCategory, productId: currentProductId },
       "",
@@ -289,6 +290,14 @@ function renderWishlistPage() {
   const grid = document.getElementById("wishlist-display");
   if (!grid) return;
 
+  // Clean up any wishlisted IDs that no longer match a real product (e.g. deleted items)
+  const validIds = new Set(allProducts.map(p => String(p.id)));
+  const cleaned = wishlist.filter(id => validIds.has(id));
+  if (cleaned.length !== wishlist.length) {
+    wishlist = cleaned;
+    saveWishlist();
+  }
+
   const items = allProducts.filter(p => isWishlisted(p.id));
 
   if (items.length === 0) {
@@ -297,6 +306,7 @@ function renderWishlistPage() {
   }
 
   grid.innerHTML = items.map(p => productCardHTML(p)).join("");
+  observeCardFadeIns();
 }
 
 async function downloadProductImage(url, name) {
@@ -316,6 +326,41 @@ async function downloadProductImage(url, name) {
     alert("Couldn't download image. Try long-pressing the image instead.");
   }
 }
+
+// ============================================================
+// BOTTOM NAV + CATEGORY TABS STATE
+// ============================================================
+function updateBottomNavState(viewId) {
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+
+  if (viewId === "home") {
+    document.getElementById("navHome")?.classList.add("active");
+  } else if (viewId === "catalog") {
+    if (currentActiveCategory === "home") {
+      document.getElementById("navHomeEssentials")?.classList.add("active");
+    } else {
+      document.getElementById("navCollections")?.classList.add("active");
+    }
+  }
+}
+
+function updateCatTabsState() {
+  document.querySelectorAll(".cat-tab").forEach(t => {
+    t.classList.toggle("active", t.dataset.cat === currentActiveCategory);
+  });
+}
+
+// ---- Retractable header + bottom nav on scroll ----
+let lastScrollY = 0;
+window.addEventListener("scroll", () => {
+  const currentY = window.scrollY;
+  const goingDown = currentY > lastScrollY && currentY > 80;
+
+  document.querySelector("header")?.classList.toggle("nav-hidden", goingDown);
+  document.getElementById("bottomNav")?.classList.toggle("nav-hidden", goingDown);
+
+  lastScrollY = currentY;
+});
 
 function updateDropdownDots() {
   ["clothing", "footwear", "accessories", "jewelry", "home"].forEach(cat => {
@@ -341,9 +386,10 @@ function openCatalog(categoryKey) {
   document.getElementById("category-title").innerText   = meta.title;
   document.getElementById("category-subtitle").innerText = meta.subtitle;
 
-  showSpinner("product-display");
+   showSpinner("product-display");
   buildFilterBar();
   renderCatalogItems();
+  updateCatTabsState();
   navigateTo("catalog");
 }
 
@@ -520,10 +566,9 @@ return `
       <img src="${p.image_url}" class="product-img" alt="${escHtml(p.name)}" loading="lazy"
         onload="this.classList.add('img-loaded'); this.previousElementSibling.classList.add('shimmer-done');"
         onerror="this.src='gii.png'; this.classList.add('img-loaded'); this.previousElementSibling.classList.add('shimmer-done');">
-    <div class="product-info">
+        <div class="product-info">
       <h3 class="product-title">${escHtml(p.name)}</h3>
       <p class="product-desc">${escHtml(p.description || "")}</p>
-      <div class="product-tags-display">${hashHTML}</div>
       <p class="product-price" ${priceStyle}>${formatPrice(p.price)}</p>
       ${inStock && p.quantity != null ? `<p class="product-qty">${p.quantity} in stock</p>` : ""}
     </div>
@@ -708,14 +753,18 @@ function renderRelatedProducts(p) {
 // SHARE
 // ============================================================
 async function shareProduct(name, hashtags) {
-  const shareData = { title: name, text: `Check out ${name} on Bamtol World! ${hashtags}`, url: window.location.href };
+  const isTouchDevice = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+
   try {
-    if (navigator.share) { await navigator.share(shareData); }
-    else {
-      navigator.clipboard.writeText(`${name} - ${hashtags} - ${window.location.href}`);
+    if (isTouchDevice && navigator.share) {
+      await navigator.share({ title: name, text: `Check out ${name} on Bamtol World! ${hashtags}`, url: window.location.href });
+    } else {
+      await navigator.clipboard.writeText(`${name} - ${hashtags} - ${window.location.href}`);
       alert("Product link copied!");
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error("Share failed:", e);
+  }
 }
 
 // ============================================================

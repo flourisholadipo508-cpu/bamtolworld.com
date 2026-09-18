@@ -55,6 +55,10 @@ body { background-color: #ffffff; color: #111111; line-height: 1.6; padding-top:
 .brand-loader img {
   width: 70px;
   height: 70px;
+  padding: 16px;
+  background: #111;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
   animation: brandPulse 1.4s ease-in-out infinite;
 }
 @keyframes brandPulse {
@@ -66,7 +70,9 @@ header {
     background-color: #111111; border-bottom: 2px solid #d4af37;
     padding: 1rem 5%; display: flex; justify-content: space-between;
     align-items: center; position: sticky; top: 31px; z-index: 1000;
+    transition: transform 0.3s ease;
 }
+header.nav-hidden { transform: translateY(-150%); }
 .logo-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .logo-img { width: 38px; height: 38px; object-fit: contain; }
 .logo-text { font-size: 1.5rem; font-weight: 700; letter-spacing: 2px; color: #ffffff; text-transform: uppercase; }
@@ -184,11 +190,14 @@ header {
 .detail-wishlist-btn { background: none; border: 1px solid #111; color: #111; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; margin-top: 10px; font-family: Arial, sans-serif; }
 
 .product-info { padding: 15px; text-align: center; flex-grow: 1; }
-.product-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+.product-title {
+  font-size: 1.1rem; font-weight: 600; margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .product-desc { font-size: 0.8rem; color: #555; margin-bottom: 8px; font-family: Arial, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }.product-desc { font-size: 0.8rem; color: #555; margin-bottom: 8px; font-family: Arial, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .product-card { cursor: pointer; }
 .product-tags-display { font-size: 0.75rem; color: #d4af37; font-weight: bold; margin-bottom: 8px; font-family: Arial, sans-serif; cursor: pointer; }
-.product-price { font-weight: bold; color: #d4af37; font-size: 1rem; background-color: #111; display: inline-block; padding: 3px 12px; border-radius: 12px; margin-bottom: 10px; }
+.product-price { font-weight: bold; color: #111; font-size: 1rem; margin-bottom: 10px; }
 
 .order-whatsapp-btn { background-color: #fff; color: #111; border: 2px solid #d4af37; padding: 8px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; border-radius: 20px; width: 85%; margin: 0 auto 15px auto; display: block; text-decoration: none; text-align: center; }
 
@@ -199,6 +208,55 @@ header {
 .about-block p { color: #444; margin-bottom: 8px; font-size: 0.85rem; }
 
 footer { background-color: #111; color: #999; text-align: center; padding: 20px; font-size: 0.75rem; border-top: 1px solid #d4af37; margin-top: 40px; }
+
+/* ---- Bottom Nav Bar ---- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #111;
+  border-top: 1px solid #d4af37;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0 14px;
+  z-index: 1500;
+  transition: transform 0.3s ease;
+}
+.bottom-nav.nav-hidden { transform: translateY(100%); }
+
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  color: #999; cursor: pointer; font-family: Arial, sans-serif;
+}
+.nav-item.active { color: #d4af37; }
+.nav-item .nav-icon { display: flex; align-items: center; justify-content: center; color: #999; }
+.nav-item.active .nav-icon { color: #d4af37; }
+.nav-item .nav-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+body { padding-bottom: 70px; }
+
+/* ---- Category Tabs (top of catalog page) ---- */
+.cat-tabs {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 16px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 16px;
+}
+.cat-tab {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; color: #999; font-family: Arial, sans-serif;
+}
+.cat-tab .tab-icon {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #f5f5f0; border: 1px solid transparent;
+  color: #999;
+}
+.cat-tab.active .tab-icon { color: #d4af37; }
+.cat-tab.active { color: #111; }
+.cat-tab.active .tab-icon { background: #111; border-color: #d4af37; }
+.cat-tab .tab-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold; }
 
 /* Premium Mobile Fixes (Resolves text overlap and column compression) */
 @media (max-width: 600px) {
