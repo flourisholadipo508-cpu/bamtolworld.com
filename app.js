@@ -75,6 +75,17 @@ window.addEventListener("popstate", (e) => {
 });
 
 window.addEventListener("productsReady", () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedProductId = urlParams.get("product");
+
+  if (sharedProductId) {
+    const p = allProducts.find(x => String(x.id) === sharedProductId);
+    if (p) {
+      openProductDetail(p.id);
+      return;
+    }
+  }
+
   const existing = history.state;
 
   if (existing && existing.view && existing.view !== "home") {
@@ -219,11 +230,11 @@ function navigateTo(viewId) {
 
   hidePageLoader();
 
-    if (!isPopping) {
+     if (!isPopping && viewId !== "product") {
     history.pushState(
       { view: viewId, category: currentActiveCategory, productId: currentProductId },
       "",
-      location.href
+      location.origin + location.pathname
     );
   }
 }
@@ -588,6 +599,11 @@ function openProductDetail(id) {
   renderProductDetail(p);
   renderRelatedProducts(p);
   navigateTo("product");
+  history.replaceState(
+    { view: "product", productId: p.id },
+    "",
+    `?product=${p.id}`
+  );
 }
 
 function renderProductDetail(p) {
@@ -752,19 +768,46 @@ function renderRelatedProducts(p) {
 // ============================================================
 // SHARE
 // ============================================================
-async function shareProduct(name, hashtags) {
-  const isTouchDevice = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+let shareContext = { name: "", hashtags: "", url: "" };
 
-  try {
-    if (isTouchDevice && navigator.share) {
-      await navigator.share({ title: name, text: `Check out ${name} on Bamtol World! ${hashtags}`, url: window.location.href });
-    } else {
-      await navigator.clipboard.writeText(`${name} - ${hashtags} - ${window.location.href}`);
-      alert("Product link copied!");
-    }
-  } catch (e) {
-    console.error("Share failed:", e);
-  }
+function shareProduct(name, hashtags) {
+  const productUrl = `${location.origin}${location.pathname}?product=${currentProductId}`;
+  shareContext = { name, hashtags, url: productUrl };
+
+  document.getElementById("shareModalTitle").textContent = `Share "${name}"`;
+  document.getElementById("shareLinkInput").value = productUrl;
+  document.getElementById("shareModalOverlay").classList.add("active");
+}
+
+function closeShareModal() {
+  document.getElementById("shareModalOverlay").classList.remove("active");
+}
+
+function copyShareLink() {
+  navigator.clipboard.writeText(shareContext.url)
+    .then(() => alert("Link copied!"))
+    .catch(() => {
+      const input = document.getElementById("shareLinkInput");
+      input.select();
+      document.execCommand("copy");
+      alert("Link copied!");
+    });
+}
+
+function shareVia(platform) {
+  const { name, hashtags, url } = shareContext;
+  const text = encodeURIComponent(`Check out ${name} on Bamtol World! ${hashtags}`);
+  const encodedUrl = encodeURIComponent(url);
+
+  const links = {
+    whatsapp: `https://wa.me/?text=${text}%20${encodedUrl}`,
+    twitter: `https://twitter.com/intent/tweet?text=${text}&url=${encodedUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    email: `mailto:?subject=${encodeURIComponent(name)}&body=${text}%20${encodedUrl}`
+  };
+
+  if (links[platform]) window.open(links[platform], "_blank");
+  closeShareModal();
 }
 
 // ============================================================

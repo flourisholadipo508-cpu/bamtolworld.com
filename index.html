@@ -49,6 +49,43 @@
   <img src="bamtol%20icon.png" alt="Loading">
 </div>
 
+<div class="share-modal-overlay" id="shareModalOverlay" onclick="if(event.target===this) closeShareModal()">
+  <div class="share-modal">
+    <h3 id="shareModalTitle">Share this product</h3>
+    <div class="share-options">
+      <button class="share-option" onclick="shareVia('whatsapp')">
+        <div class="share-icon" style="background:#25D366;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.5A10 10 0 1 0 12 2zm5.6 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.7-1.2-4.4-3.9-4.6-4.1-.1-.2-1.1-1.4-1.1-2.7s.7-1.9 1-2.2c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.4.2.5.7 1.8.8 1.9.1.1.1.3 0 .5-.1.2-.1.3-.3.5-.1.2-.3.3-.4.5-.1.1-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.4 1.5 2.7 1.7.3.1.5.1.6-.1.2-.2.7-.8.9-1 .2-.3.3-.2.6-.1.2.1 1.5.7 1.8.8.3.1.4.2.5.3.1.2.1.9-.2 1.5z"/></svg>
+        </div>
+        <span>WhatsApp</span>
+      </button>
+      <button class="share-option" onclick="shareVia('twitter')">
+        <div class="share-icon" style="background:#111;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M18.9 2H22l-7.6 8.7L23.5 22H16.5l-5.5-7-6.3 7H1.7l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.8L7.4 4H5.5l12.2 16z"/></svg>
+        </div>
+        <span>X</span>
+      </button>
+      <button class="share-option" onclick="shareVia('facebook')">
+        <div class="share-icon" style="background:#1877F2;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12z"/></svg>
+        </div>
+        <span>Facebook</span>
+      </button>
+      <button class="share-option" onclick="shareVia('email')">
+        <div class="share-icon" style="background:#666;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M2 4h20v16H2V4zm2 2v.01L12 12l8-5.99V6H4zm16 12V8.24l-8 6-8-6V18h16z"/></svg>
+        </div>
+        <span>Email</span>
+      </button>
+    </div>
+    <div class="share-link-row">
+      <input type="text" id="shareLinkInput" readonly>
+      <button onclick="copyShareLink()">Copy</button>
+    </div>
+    <button class="share-cancel-btn" onclick="closeShareModal()">Cancel</button>
+  </div>
+</div>
+
     <!-- Promotion Announcement Ticker -->
    <div class="promo-banner"><span class="promo-track" id="promoTrack"></span></div>
     <!-- Luxury Header Navigation Platform -->
